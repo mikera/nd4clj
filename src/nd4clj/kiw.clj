@@ -177,7 +177,7 @@
     ([m f] (reduce f (mp/element-seq m)))
     ([m f init] (reduce f init (mp/element-seq m))))
   mp/PSquare
-  (mp/square [m] (.muli m m))
+  (mp/square [m] (.mul m m))
   mp/PMatrixPredicates
   (mp/identity-matrix? [m]
     (and (square? m) (mp/diagonal? m) (let [diag (mp/main-diagonal m)] (= 1.0 (.minNumber diag) (.maxNumber diag)))))

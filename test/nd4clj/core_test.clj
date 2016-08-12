@@ -1,9 +1,9 @@
 (ns nd4clj.core-test
   (:require [clojure.pprint :refer [pprint]]
-            [clojure.core.matrix :refer [matrix mmul] :as m]
+            [clojure.core.matrix :refer :all :as m]
             [clojure.test :refer :all]
             [clojure.core.matrix.compliance-tester :as compliance]
-            [nd4clj.kiw :refer :all])
+            [nd4clj.kiw])
   (:import [org.nd4j.linalg.factory Nd4j]))
 
 
@@ -13,4 +13,4 @@
 (clojure.core.matrix/set-current-implementation :nd4j)
 
 (deftest compliance-test
-  (clojure.core.matrix.compliance-tester/instance-test (m/matrix :nd4j [[2 0] [0 2]]))) 
+  (clojure.core.matrix.compliance-tester/instance-test (matrix :nd4j [[2 0] [0 2]]))) 
