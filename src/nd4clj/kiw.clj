@@ -115,11 +115,24 @@
     (>= dimensions 2))
   mp/PDimensionInfo
   (mp/dimensionality [m]
-    (let [dim (alength (.shape m))] (if (and (= dim 2) (or (.isRowVector m) (.isColumnVector m))) (if (> (.length m) 1) 1 0) dim)))
+    (let [rank (.rank m)] 
+      ;; we need to do this since NMD4J considers everything to have rank 2 or more
+      (if (== rank 2)
+        (cond
+          (.isScalar m) 0
+          (.isVector m) 1
+          :else 2)
+        rank)))
   (mp/get-shape [m]
-    (vec (int-array (.shape m))))
+    (let [rank (.rank m)] 
+      ;; we need to do this since NMD4J considers everything to have rank 2 or more
+      (if (== rank 2)
+        (cond 
+          (.isScalar m) []
+          (.isVector m) [(.length m)]) 
+        (vec (.shape m)))))
   (mp/is-scalar? [m]
-    false)
+    (.isScalar m))
   (mp/is-vector? [m]
     (.isVector m))
   (mp/dimension-count [m dimension-number]
@@ -203,10 +216,10 @@
   mp/PMatrixSlices
   (mp/get-row [m i]  (.getRow m i))
   (mp/get-column [m i]  (.getColumn m i))
-  (mp/get-major-slice [m i] (.slice m i))
-  (mp/get-slice [m dimension i] (.slice m i dimension))
+  (mp/get-major-slice [m i] (.slice m (int i)))
+  (mp/get-slice [m dimension i] (.slice m (int i) (int dimension)))
   mp/PSliceSeq
-  (mp/get-major-slice-seq [m] (mapv #(.slice m %) (range (mp/dimension-count m 0))))
+  (mp/get-major-slice-seq [m] (mapv #(.slice m (int %)) (range (mp/dimension-count m 0))))
   mp/PTranspose
   (mp/transpose [m] (.transpose m))
   mp/PComputeMatrix
