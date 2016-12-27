@@ -15,7 +15,6 @@
            [org.nd4j.linalg.api.ops.impl.broadcast BroadcastCopyOp]
            [org.nd4j.linalg.indexing IntervalIndex INDArrayIndex]))
 
-;; TODO: eliminate reflection warnings
 (set! *warn-on-reflection* true)
 ;; (set! *unchecked-math* true)
 
@@ -24,7 +23,7 @@
 (declare wrap-matrix)
 (declare empty-matrix)
 
-(defn- broadcast [m target-shape]
+(defn- broadcast [^clj-INDArray m target-shape]
   (let [dim-prj (->> target-shape count range (drop 1) int-array)
         crt (Nd4j/create (int-array target-shape))
         vbn (BroadcastCopyOp. crt (.a m) crt (int-array []))
@@ -87,7 +86,7 @@
         iterate-fn (get-index-iterate-fn shape)]
     (iterate iterate-fn begin)))
 
-(defn- concat-along [is-vec old matrix dim]
+(defn- concat-along [is-vec ^INDArray old matrix dim]
   (if (= (alength (.shape old)) 2) ;nd4j concat does not work for indexes hi
     (Nd4j/concat #^int (int dim) #^"[Lorg.nd4j.linalg.api.ndarray.INDArray;" (into-array org.nd4j.linalg.api.ndarray.INDArray matrix))
     (let [iterater (iterate-indexes (.shape old))
@@ -99,7 +98,7 @@
           (.putScalar ^INDArray to-return #^ints (int-array i1) (.getDouble ^INDArray sliced-matrix (int-array i2)))))
       to-return)))
 
-(defn- rotate4 [old dim pos]
+(defn- rotate4 [^clj-INDArray old dim pos]
   (let [^INDArray matrix (.a old)
         dim-sz (-> matrix (.size dim))
         components (if (not (.vector old))
@@ -273,9 +272,9 @@
   (mp/square [m] (mp/element-pow m 2))
   mp/PMatrixDivide
   (mp/element-divide
-    [m] (wrap-matrix m (.rdiv a 1)))
+    [m] (wrap-matrix m (.rdiv a (num 1))))
   (mp/element-divide
-    [m w] (wrap-matrix m (.div a (.a (convert-mn m w)))))
+    [m w] (wrap-matrix m (.div a ^INDArray (.a ^clj-INDArray (convert-mn m w)))))
   Object
   (toString [m] (str a))
 ;clojure.lang.Seqable
@@ -330,8 +329,9 @@
                                         ;(mp/is-vector? (m/matrix :ndarray (m/matrix :nd4j [[1 2]])))
 
 
-(vec (.shape (.a (m/matrix :nd4j [[1 2] [3 2]]))))
-(let [array (.a (m/matrix :nd4j [[1 2] [3 2] [4 5]]))
-      sp (vec (.shape array))
-      repeat-num (reduce #(conj %1 (* (sp %2) (last %1))) [1] (range (dec (count sp))))]
-  (map #(->> %1 range (map (fn [x] (repeat %2 x)))) sp repeat-num))
+(comment
+  (vec (.shape (.a (m/matrix :nd4j [[1 2] [3 2]]))))
+  (let [array (.a (m/matrix :nd4j [[1 2] [3 2] [4 5]]))
+        sp (vec (.shape array))
+        repeat-num (reduce #(conj %1 (* (sp %2) (last %1))) [1] (range (dec (count sp))))]
+    (map #(->> %1 range (map (fn [x] (repeat %2 x)))) sp repeat-num)))
