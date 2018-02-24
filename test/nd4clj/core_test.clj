@@ -3,7 +3,8 @@
             [clojure.core.matrix :refer :all :as m]
             [clojure.test :refer :all]
             [clojure.core.matrix.compliance-tester :as compliance]
-            [nd4clj.matrix])
+            [nd4clj.matrix]
+            [clojure.core.matrix.protocols :as mp])
   (:import [org.nd4j.linalg.factory Nd4j]))
 
 
@@ -25,3 +26,9 @@
 (deftest compliance-test
   (clojure.core.matrix.compliance-tester/instance-test (matrix :nd4j [[2 0] [0 2]]))
   (clojure.core.matrix.compliance-tester/compliance-test (matrix :nd4j [[2 0] [0 2]]))) 
+
+
+(comment
+  (mp/is-scalar? (matrix :nd4j 0))
+
+  (array? (matrix :nd4j 0)))
